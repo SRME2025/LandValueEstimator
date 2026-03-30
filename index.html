@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Land Valuation Simulator (2026)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            border-top: 5px solid var(--primary);
+        }
+
+        .header h1 { margin: 0 0 10px 0; font-size: 1.5rem; color: var(--text-muted); }
+        .result-display { font-size: 3rem; font-weight: bold; color: var(--primary); margin: 0; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        h2 { margin-top: 0; font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        label { font-weight: 500; font-size: 0.9rem; flex: 1; }
+
+        input[type="number"], select {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .coeff-input { width: 150px !important; }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .help-text { font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Predicted Adjusted Price (2026)</h1>
+        <div class="result-display" id="priceOutput">UGX 0</div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Model Coefficients</h2>
+            <p class="help-text" style="margin-bottom: 15px;">Enter your Minitab regression coefficients here.</p>
+            
+            <div class="form-group"><label>a0 (Intercept)</label><input type="number" id="a0" class="coeff-input calc-trigger" value="50000000"></div>
+            <div class="form-group"><label>a1 (Commercial)</label><input type="number" id="a1" class="coeff-input calc-trigger" value="10000000"></div>
+            <div class="form-group"><label>a2 (Industrial)</label><input type="number" id="a2" class="coeff-input calc-trigger" value="50000"></div>
+            <div class="form-group"><label>a3 (Earth Road)</label><input type="number" id="a3" class="coeff-input calc-trigger" value="5000000"></div>
+            <div class="form-group"><label>a4 (Tarmac Road)</label><input type="number" id="a4" class="coeff-input calc-trigger" value="15000000"></div>
+            <div class="form-group"><label>a5 (Piped Water)</label><input type="number" id="a5" class="coeff-input calc-trigger" value="8000000"></div>
+            <div class="form-group"><label>a6 (Dist. Electricity)</label><input type="number" id="a6" class="coeff-input calc-trigger" value="20000000"></div>
+            <div class="form-group"><label>a7 (Dist. Access Road)</label><input type="number" id="a7" class="coeff-input calc-trigger" value="-500000"></div>
+            <div class="form-group"><label>a8 (Dist. Major Road)</label><input type="number" id="a8" class="coeff-input calc-trigger" value="30000000"></div>
+            <div class="form-group"><label>a9 (Dist. Town Centre)</label><input type="number" id="a9" class="coeff-input calc-trigger" value="100000000"></div>
+            <div class="form-group"><label>a10 (Terrain Values)</label><input type="number" id="a10" class="coeff-input calc-trigger" value="50000000"></div>
+            <div class="form-group"><label>a11 (Buildings PC)</label><input type="number" id="a11" class="coeff-input calc-trigger" value="2000000"></div>
+        </div>
+
+        <div class="card">
+            <h2>Parcel Characteristics</h2>
+            <p class="help-text" style="margin-bottom: 15px;">Adjust the physical attributes to simulate valuation.</p>
+
+            <div class="form-group"><label>Commercial Neighborhood</label><input type="checkbox" id="v_com" class="calc-trigger"></div>
+            <div class="form-group"><label>Industrial Neighborhood</label><input type="checkbox" id="v_ind" class="calc-trigger"></div>
+            <div class="form-group"><label>Earth Road Access</label><input type="checkbox" id="v_earth" class="calc-trigger"></div>
+            <div class="form-group"><label>Tarmac Road Access</label><input type="checkbox" id="v_tarmac" class="calc-trigger"></div>
+            <div class="form-group"><label>Piped Water Available</label><input type="checkbox" id="v_water" class="calc-trigger"></div>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+            <div class="form-group">
+                <label>Distance to Electricity (m)<span class="help-text">Min 1m</span></label>
+                <input type="number" id="v_delec" class="calc-trigger" value="100" min="1">
+            </div>
+            <div class="form-group">
+                <label>Distance to Access Road (m)<span class="help-text">Min 2m (for Log calc)</span></label>
+                <input type="number" id="v_daccess" class="calc-trigger" value="50" min="2">
+            </div>
+            <div class="form-group">
+                <label>Distance to Major Road (m)<span class="help-text">Min 1m</span></label>
+                <input type="number" id="v_dmajor" class="calc-trigger" value="500" min="1">
+            </div>
+            <div class="form-group">
+                <label>Distance to Town Centre (m)<span class="help-text">Min 1m</span></label>
+                <input type="number" id="v_dtown" class="calc-trigger" value="2000" min="1">
+            </div>
+            <div class="form-group">
+                <label>Number of Buildings (PC)<span class="help-text">0 or more</span></label>
+                <input type="number" id="v_bldgs" class="calc-trigger" value="2" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label>Terrain Classification</label>
+                <select id="v_terrain" class="calc-trigger">
+                    <option value="1">1 - Flat</option>
+                    <option value="2">2 - Hilly</option>
+                    <option value="3">3 - Mountainous</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateValuation() {
+        try {
+            // Get Coefficients
+            const a0 = parseFloat(document.getElementById('a0').value) || 0;
+            const a1 = parseFloat(document.getElementById('a1').value) || 0;
+            const a2 = parseFloat(document.getElementById('a2').value) || 0;
+            const a3 = parseFloat(document.getElementById('a3').value) || 0;
+            const a4 = parseFloat(document.getElementById('a4').value) || 0;
+            const a5 = parseFloat(document.getElementById('a5').value) || 0;
+            const a6 = parseFloat(document.getElementById('a6').value) || 0;
+            const a7 = parseFloat(document.getElementById('a7').value) || 0;
+            const a8 = parseFloat(document.getElementById('a8').value) || 0;
+            const a9 = parseFloat(document.getElementById('a9').value) || 0;
+            const a10 = parseFloat(document.getElementById('a10').value) || 0;
+            const a11 = parseFloat(document.getElementById('a11').value) || 0;
+
+            // Get Variables
+            const com = document.getElementById('v_com').checked ? 1 : 0;
+            const ind = document.getElementById('v_ind').checked ? 1 : 0;
+            const earth = document.getElementById('v_earth').checked ? 1 : 0;
+            const tarmac = document.getElementById('v_tarmac').checked ? 1 : 0;
+            const water = document.getElementById('v_water').checked ? 1 : 0;
+            
+            // Ensure minimums to prevent math errors (e.g. log(1) = 0, divide by zero)
+            const d_elec = Math.max(1, parseFloat(document.getElementById('v_delec').value) || 1);
+            const d_access = Math.max(2, parseFloat(document.getElementById('v_daccess').value) || 2);
+            const d_major = Math.max(1, parseFloat(document.getElementById('v_dmajor').value) || 1);
+            const d_town = Math.max(1, parseFloat(document.getElementById('v_dtown').value) || 1);
+            const bldgs = Math.max(0, parseFloat(document.getElementById('v_bldgs').value) || 0);
+            const terrain = parseFloat(document.getElementById('v_terrain').value) || 1;
+
+            // Apply the Non-Linear Equation
+            const term1 = a1 * Math.pow((1/5), com);
+            const term2 = a2 * Math.pow(Math.exp(ind), 5);
+            const term3 = a3 * Math.pow(2, earth);
+            const term4 = a4 * tarmac;
+            const term5 = a5 * water;
+            const term6 = a6 * Math.pow(d_elec, -1.1);
+            const term7 = a7 * Math.pow(Math.log(d_access), 2);
+            const term8 = a8 * Math.pow(d_major, -1/12);
+            const term9 = a9 * Math.pow(d_town, -3.75);
+            const term10 = a10 * Math.pow(terrain, -11);
+            const term11 = a11 * Math.pow(bldgs, 0.67);
+
+            const finalPrice = a0 + term1 + term2 + term3 + term4 + term5 + term6 + term7 + term8 + term9 + term10 + term11;
+
+            // Format Output
+            const formatter = new Intl.NumberFormat('en-UG', {
+                style: 'currency',
+                currency: 'UGX',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+
+            if (isNaN(finalPrice) || !isFinite(finalPrice)) {
+                document.getElementById('priceOutput').innerText = "Math Error (Check Inputs)";
+                document.getElementById('priceOutput').style.color = "red";
+            } else {
+                document.getElementById('priceOutput').innerText = formatter.format(finalPrice);
+                document.getElementById('priceOutput').style.color = "var(--primary)";
+            }
+        } catch (error) {
+            console.error("Calculation error:", error);
+            document.getElementById('priceOutput').innerText = "Error";
+        }
+    }
+
+    // Attach event listeners to all inputs
+    const inputs = document.querySelectorAll('.calc-trigger');
+    inputs.forEach(input => {
+        input.addEventListener('input', calculateValuation);
+        input.addEventListener('change', calculateValuation);
+    });
+
+    // Initial calculation on load
+    calculateValuation();
+</script>
+
+</body>
+</html>
