@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Land Valuation Field Tool (2026)</title>
+    <title>LAVMIS Land Valuer (Enforced Logic)</title>
     <style>
         :root {
-            --primary: #059669; /* Green for land/valuation */
+            --primary: #059669;
             --bg-color: #f1f5f9;
             --card-bg: #ffffff;
             --text-main: #0f172a;
@@ -14,18 +14,8 @@
             --border: #cbd5e1;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
 
         .valuation-header {
             text-align: center;
@@ -37,50 +27,25 @@
             margin-bottom: 30px;
         }
 
-        .valuation-header h1 { margin: 0; font-size: 1.2rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
-        .price-display { font-size: 3.5rem; font-weight: 800; margin-top: 10px; }
+        .valuation-header h1 { margin: 0; font-size: 1.1rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .price-display { font-size: 3.2rem; font-weight: 800; margin-top: 10px; }
 
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
-        }
-
+        .card { background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid var(--border); }
         section { margin-bottom: 30px; }
         h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #ecfdf5; padding-bottom: 8px; }
 
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group.row { flex-direction: row; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px; }
+        
+        .radio-box-group { display: flex; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
+        .radio-option { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 
         label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
-        
-        input[type="number"], select {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border 0.2s;
-        }
+        input[type="number"], select { padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+        input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); }
 
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); }
-
-        input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-
-        .unit { font-size: 0.8rem; color: #94a3b8; margin-left: 4px; }
+        .unit { font-size: 0.8rem; color: #94a3b8; }
+        .warning { color: #f59e0b; font-size: 0.85rem; font-weight: 600; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -88,33 +53,35 @@
 <div class="container">
     <div class="valuation-header">
         <h1>Estimated Land Value (2026)</h1>
-        <div class="price-display" id="priceOutput">UGX 0</div>
+        <div class="price-display" id="priceOutput">Select Terrain...</div>
+        <div id="statusMessage" class="warning">Please complete all fields to see valuation</div>
     </div>
 
     <div class="card">
         <section>
-            <h2>Infrastructure & Zoning</h2>
-            <div class="input-grid">
-                <div class="form-group row">
-                    <label>Commercial Zone</label>
-                    <input type="checkbox" id="v_com" class="calc-trigger">
+            <h2>Infrastructure & Zoning Enforcements</h2>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Zoning Category (Choose One)</label>
+                <div class="radio-box-group">
+                    <label class="radio-option"><input type="radio" name="zoning" value="none" class="calc-trigger" checked> None/Other</label>
+                    <label class="radio-option"><input type="radio" name="zoning" value="com" class="calc-trigger"> Commercial</label>
+                    <label class="radio-option"><input type="radio" name="zoning" value="ind" class="calc-trigger"> Industrial</label>
                 </div>
-                <div class="form-group row">
-                    <label>Industrial Zone</label>
-                    <input type="checkbox" id="v_ind" class="calc-trigger">
+            </div>
+
+            <div class="form-group">
+                <label>Access Road Type (Choose One)</label>
+                <div class="radio-box-group">
+                    <label class="radio-option"><input type="radio" name="road" value="none" class="calc-trigger" checked> None/Other</label>
+                    <label class="radio-option"><input type="radio" name="road" value="earth" class="calc-trigger"> Earth Road</label>
+                    <label class="radio-option"><input type="radio" name="road" value="tarmac" class="calc-trigger"> Tarmac Road</label>
                 </div>
-                <div class="form-group row">
-                    <label>Earth Road Access</label>
-                    <input type="checkbox" id="v_earth" class="calc-trigger">
-                </div>
-                <div class="form-group row">
-                    <label>Tarmac Road Access</label>
-                    <input type="checkbox" id="v_tarmac" class="calc-trigger">
-                </div>
-                <div class="form-group row" style="grid-column: span 2;">
-                    <label>Piped Water Connection</label>
-                    <input type="checkbox" id="v_water" class="calc-trigger">
-                </div>
+            </div>
+            
+            <div class="form-group" style="margin-top:20px;">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="v_water" class="calc-trigger" style="width:20px; height:20px; accent-color: var(--primary);"> Piped Water Connection
+                </label>
             </div>
         </section>
 
@@ -122,24 +89,9 @@
             <h2>Spatial Proximity & Physical Features</h2>
             <div class="input-grid">
                 <div class="form-group">
-                    <label>Dist. to Electricity <span class="unit">(m)</span></label>
-                    <input type="number" id="v_delec" class="calc-trigger" value="100">
-                </div>
-                <div class="form-group">
-                    <label>Dist. to Access Road <span class="unit">(m)</span></label>
-                    <input type="number" id="v_daccess" class="calc-trigger" value="50">
-                </div>
-                <div class="form-group">
-                    <label>Dist. to Major Road <span class="unit">(m)</span></label>
-                    <input type="number" id="v_dmajor" class="calc-trigger" value="500">
-                </div>
-                <div class="form-group">
-                    <label>Dist. to Town Centre <span class="unit">(m)</span></label>
-                    <input type="number" id="v_dtown" class="calc-trigger" value="2000">
-                </div>
-                <div class="form-group">
                     <label>Terrain Type</label>
                     <select id="v_terrain" class="calc-trigger">
+                        <option value="" disabled selected>-- Select Terrain --</option>
                         <option value="1">Flat</option>
                         <option value="2">Hilly</option>
                         <option value="3">Mountainous</option>
@@ -147,7 +99,23 @@
                 </div>
                 <div class="form-group">
                     <label>Buildings <span class="unit">(Count)</span></label>
-                    <input type="number" id="v_bldgs" class="calc-trigger" value="1">
+                    <input type="number" id="v_bldgs" class="calc-trigger" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Dist. to Electricity <span class="unit">(m)</span></label>
+                    <input type="number" id="v_delec" class="calc-trigger" value="100" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Dist. to Access Road <span class="unit">(m)</span></label>
+                    <input type="number" id="v_daccess" class="calc-trigger" value="50" min="2">
+                </div>
+                <div class="form-group">
+                    <label>Dist. to Major Road <span class="unit">(m)</span></label>
+                    <input type="number" id="v_dmajor" class="calc-trigger" value="500" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Dist. to Town Centre <span class="unit">(m)</span></label>
+                    <input type="number" id="v_dtown" class="calc-trigger" value="2000" min="1">
                 </div>
             </div>
         </section>
@@ -155,43 +123,42 @@
 </div>
 
 <script>
-    /**
-     * CONFIGURATION: Update these coefficients based on your Minitab results.
-     * These are hidden from the user interface.
-     */
     const MODEL_COEFFICIENTS = {
-        a0: 50000000,   // Base Intercept
-        a1: 10000000,   // Commercial
-        a2: 50000,      // Industrial
-        a3: 5000000,    // Earth Road
-        a4: 15000000,   // Tarmac
-        a5: 8000000,    // Water
-        a6: 20000000,   // Electricity Distance
-        a7: -500000,    // Access Road Distance
-        a8: 30000000,   // Major Road Distance
-        a9: 100000000,  // Town Centre Distance
-        a10: 50000000,  // Terrain Penalty
-        a11: 2000000    // Building Density
+        a0: 50000000, a1: 10000000, a2: 50000, a3: 5000000, a4: 15000000, a5: 8000000,
+        a6: 20000000, a7: -500000, a8: 30000000, a9: 100000000, a10: 50000000, a11: 2000000
     };
 
     function calculateValuation() {
         const C = MODEL_COEFFICIENTS;
-
-        // Inputs
-        const com = document.getElementById('v_com').checked ? 1 : 0;
-        const ind = document.getElementById('v_ind').checked ? 1 : 0;
-        const earth = document.getElementById('v_earth').checked ? 1 : 0;
-        const tarmac = document.getElementById('v_tarmac').checked ? 1 : 0;
-        const water = document.getElementById('v_water').checked ? 1 : 0;
+        const terrainInput = document.getElementById('v_terrain');
         
+        if (!terrainInput.value) {
+            document.getElementById('priceOutput').innerText = "Select Terrain...";
+            document.getElementById('statusMessage').style.display = "block";
+            return;
+        }
+
+        document.getElementById('statusMessage').style.display = "none";
+
+        // Zoning Radio Logic
+        const zoningVal = document.querySelector('input[name="zoning"]:checked').value;
+        const com = (zoningVal === 'com') ? 1 : 0;
+        const ind = (zoningVal === 'ind') ? 1 : 0;
+
+        // Road Radio Logic
+        const roadVal = document.querySelector('input[name="road"]:checked').value;
+        const earth = (roadVal === 'earth') ? 1 : 0;
+        const tarmac = (roadVal === 'tarmac') ? 1 : 0;
+
+        const water = document.getElementById('v_water').checked ? 1 : 0;
         const d_elec = Math.max(1, parseFloat(document.getElementById('v_delec').value) || 1);
         const d_access = Math.max(2, parseFloat(document.getElementById('v_daccess').value) || 2);
         const d_major = Math.max(1, parseFloat(document.getElementById('v_dmajor').value) || 1);
         const d_town = Math.max(1, parseFloat(document.getElementById('v_dtown').value) || 1);
         const bldgs = Math.max(0, parseFloat(document.getElementById('v_bldgs').value) || 0);
-        const terrain = parseFloat(document.getElementById('v_terrain').value) || 1;
+        const terrain = parseFloat(terrainInput.value);
 
-        // The Formula
+        // Calculation using the Non-Linear Model
         const price = C.a0 
             + (C.a1 * Math.pow(0.2, com)) 
             + (C.a2 * Math.pow(Math.exp(ind), 5)) 
@@ -205,20 +172,17 @@
             + (C.a10 * Math.pow(terrain, -11)) 
             + (C.a11 * Math.pow(bldgs, 0.67));
 
-        // Format Output
         const formatter = new Intl.NumberFormat('en-UG', {
             style: 'currency', currency: 'UGX', minimumFractionDigits: 0
         });
 
-        document.getElementById('priceOutput').innerText = isFinite(price) ? formatter.format(price) : "Calculating...";
+        document.getElementById('priceOutput').innerText = formatter.format(price);
     }
 
     document.querySelectorAll('.calc-trigger').forEach(el => {
         el.addEventListener('input', calculateValuation);
         el.addEventListener('change', calculateValuation);
     });
-
-    calculateValuation();
 </script>
 
 </body>
